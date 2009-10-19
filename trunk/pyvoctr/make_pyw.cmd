@@ -1,2 +1,2 @@
 del run.pyw
-fsutil hardlink create run.pyw run.py
+fsutil hardlink create pyvoctr.pyw pyvoctr.py
