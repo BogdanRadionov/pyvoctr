@@ -13,6 +13,7 @@
 # TODO: Reconsider text scaling approach
 # TODO: Optional delay before second word appears
 # TODO: Swap words
+# TODO: Resize font size for long phrases
 import sys
 import os
 
@@ -81,8 +82,8 @@ class qapp(QtGui.QMainWindow):
 
         ## single-shot timer
         if self.think_time_enabled:
-            self.delay_timer = QtCore.QTimer()
-        #self.ctimer.start(self.timer_period)
+            self.timer_think_time = QtCore.QTimer()
+        #self.ctimer.start(self.show_time_value)
         self.setWindowIcon(QtGui.QIcon('pyvoc.ico'))
         self.is_dragging = False
         self.words = {}
@@ -136,20 +137,24 @@ class qapp(QtGui.QMainWindow):
             print self.bg_color, self.bg_color.name
             self.setStyleSheet("QWidget { background-color: %s }" % self.bg_color.name() )
 
-    def setTimeOut(self):
+    def setShowTime(self):
         val, ok = QtGui.QInputDialog.getInteger(self, "Show word for... ",
-                                              "Seconds:", self.timer_period/1000, 0, 1000, 1)
+                                              "Seconds:", self.show_time_value/1000, 0, 1000, 1)
         if ok:
-            self.timer_period = val * 1000
+            self.show_time_value = val * 1000
             self.timer_toggle()
             self.timer_toggle()
+            # if current think time bigger than show_time_value then
+            # set it to half the value of timer period
+            if self.think_time_value > self.show_time_value:
+                self.think_time_value = int(self.show_time_value / 2)
 
     def setThinkTime(self):
         val2, ok = QtGui.QInputDialog.getInteger(self, "Set think time",
                                               "Seconds:", self.think_time_value/1000, 0, 1000, 1)
         if ok:
-            if val2 * 1000 > self.timer_period:
-                QtGui.QMessageBox.information(self, self.tr("Invalid value"), "Entered value is greater than display timeout!")
+            if val2 * 1000 > self.show_time_value:
+                QtGui.QMessageBox.information(self, self.tr("Invalid value"), "Entered value is greater than show time!")
             else:
                 self.think_time_value = val2 * 1000
             self.timer_toggle()
@@ -161,7 +166,7 @@ class qapp(QtGui.QMainWindow):
         menu.addAction(self.actStartStop)
         menu.addAction(self.actToggleAlwaysOnTop)
         menu.addAction(self.actToggleDecorations)
-        menu.addAction(self.actChangeTimeout)
+        menu.addAction(self.actSetShowTime)
         menu.addAction(self.actSetBgColor)
         menu.addAction(self.actSetThinkTime)
         menu.addAction(self.exitAct)
@@ -172,14 +177,14 @@ class qapp(QtGui.QMainWindow):
         if event.button() == QtCore.Qt.LeftButton:
             self.dragPosition = event.globalPos() - self.frameGeometry().topLeft()
             event.accept()
-            print event.pos()
+            #print event.pos()
 
     def mouseMoveEvent(self, event):
         if event.buttons() == QtCore.Qt.LeftButton:
             self.move(event.globalPos() - self.dragPosition)
             event.accept()
             self.is_dragging = True
-            print event.pos()
+            #print event.pos()
 
     def resizeEvent(self, event):
         side = min(self.width(), self.height())
@@ -250,7 +255,7 @@ class qapp(QtGui.QMainWindow):
 
     def timer_update(self):
         """
-        slot for constant timer timeout
+        slot for show time timer
         """
 
         if  self.cur_pos >= len(self.keys):
@@ -266,13 +271,15 @@ class qapp(QtGui.QMainWindow):
             self.ui.lb_target.setText(word2_formatted)
         else:
             self.ui.lb_target.setText('')
-            print 'think_time_value=', type(self.think_time_value), self.think_time_value
-            self.delay_timer.singleShot(self.think_time_value, lambda : self.ui.lb_target.setText(word2_formatted))
+            self.timer_think_time.singleShot(self.think_time_value, lambda : self.ui.lb_target.setText(word2_formatted))
         self.cur_pos += 1
 
     def timer_skip(self, event):
         print 'timer_skip...'
         if not self.is_dragging and event.button() == QtCore.Qt.LeftButton:
+            if self.timer_think_time:
+                self.timer_think_time.stop()
+                self.timer_think_time.start()
             self.timer_update()
         if self.is_dragging:
             self.is_dragging = False
@@ -280,7 +287,7 @@ class qapp(QtGui.QMainWindow):
     def timer_toggle(self):
         """ Start/stop timer """
         if not self.ctimer.isActive():
-            self.ctimer.start(self.timer_period) # start timer
+            self.ctimer.start(self.show_time_value) # start timer
             #self.ui.btn_constant.setText('Stop')
             #self.ui.lnk_start.setText('Stop')
             self.actStartStop.setChecked(True)
@@ -295,7 +302,7 @@ class qapp(QtGui.QMainWindow):
         self.fileMenu.addAction(self.actOpenData)
         self.fileMenu.addAction(self.actToggleAlwaysOnTop)
         self.fileMenu.addAction(self.actToggleDecorations)
-        self.fileMenu.addAction(self.actChangeTimeout)
+        self.fileMenu.addAction(self.actSetShowTime)
         #self.fileMenu.addAction(self.actHideWindowTitle)
         #self.fileMenu.addAction(self.actUnhideWindowTitle)
         self.fileMenu.addAction(self.actStartStop)
@@ -332,8 +339,8 @@ class qapp(QtGui.QMainWindow):
         self.actSetBgColor.setShortcut("Ctrl+G")
         self.connect(self.actSetBgColor, QtCore.SIGNAL("triggered()"), self.setBgColor)
 
-        self.actChangeTimeout = QtGui.QAction("Set timeout", self)
-        self.connect(self.actChangeTimeout, QtCore.SIGNAL("triggered()"), self.setTimeOut)
+        self.actSetShowTime = QtGui.QAction("Set show time", self)
+        self.connect(self.actSetShowTime, QtCore.SIGNAL("triggered()"), self.setShowTime)
 
         self.actSetThinkTime = QtGui.QAction("Set think time", self)
         self.connect(self.actSetThinkTime, QtCore.SIGNAL("triggered()"), self.setThinkTime)
@@ -364,7 +371,7 @@ class qapp(QtGui.QMainWindow):
 
         #store config in local variables
         self.bg_color = self.settings.contains('bg_color') and self.settings.value("bg_color").toString() or DEFAULT_BG_COLOR
-        self.timer_period = self.settings.contains('timer_period') and self.settings.value("timer_period").toInt()[0] or DEFAULT_TIMER_PERIOD
+        self.show_time_value = self.settings.contains('show_time_value') and self.settings.value("show_time_value").toInt()[0] or DEFAULT_TIMER_PERIOD
         self.dict_file = self.settings.contains('dict_file') and self.settings.value("dict_file").toString() or DEFAULT_DICT_FILE
         self.show_decorations = self.settings.contains('show_decorations') and self.settings.value("show_decorations").toBool() or DEFAULT_SHOW_DECORATIONS
         self.always_on_top = self.settings.contains('always_on_top') and self.settings.value("always_on_top").toBool() or DEFAULT_ALWAYS_ON_TOP
@@ -391,7 +398,7 @@ class qapp(QtGui.QMainWindow):
         settings.setValue("show_decorations", QtCore.QVariant(self.actToggleDecorations.isChecked()))
         settings.setValue("think_time_enabled", QtCore.QVariant(self.think_time_enabled))
         settings.setValue("bg_color", QtCore.QVariant(self.bg_color))
-        settings.setValue("timer_period", QtCore.QVariant(self.timer_period))
+        settings.setValue("show_time_value", QtCore.QVariant(self.show_time_value))
         settings.setValue("dict_file", QtCore.QVariant(self.dict_file))
         settings.setValue("window_flags", QtCore.QVariant(int(self.windowFlags())))
         settings.setValue("think_time_value", QtCore.QVariant(self.think_time_value))
