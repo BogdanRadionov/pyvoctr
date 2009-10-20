@@ -278,7 +278,7 @@ class qapp(QtGui.QMainWindow):
         print 'timer_skip...'
         if not self.is_dragging and event.button() == QtCore.Qt.LeftButton:
             if self.timer_think_time:
-                self.timer_think_time.stop()
+                #self.timer_think_time.stop()
                 self.timer_think_time.start()
             self.timer_update()
         if self.is_dragging:
