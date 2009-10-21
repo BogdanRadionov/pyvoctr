@@ -11,9 +11,10 @@
 # TODO: Add support for loading DSL files (??)
 # TODO: Set display font/size
 # TODO: Reconsider text scaling approach
-# TODO: Optional delay before second word appears
+# TODO: Optional delay before second word appears DONE
 # TODO: Swap words
 # TODO: Resize font size for long phrases
+# TODO: Hide from task bar, create icon in systray DONE
 import sys
 import os
 
@@ -71,6 +72,7 @@ class Ui_MainWindow(object):
 
 
 class qapp(QtGui.QMainWindow):
+
     def __init__(self, parent=None):
         super(qapp, self).__init__(parent)
         self.ui = Ui_MainWindow()
@@ -78,6 +80,7 @@ class qapp(QtGui.QMainWindow):
         self.readSettings()
         self.createActions()
         self.createMenus()
+        # self.createTrayIcon()
         self.ctimer = QtCore.QTimer()
 
         ## single-shot timer
@@ -86,6 +89,7 @@ class qapp(QtGui.QMainWindow):
         #self.ctimer.start(self.show_time_value)
         self.setWindowIcon(QtGui.QIcon('pyvoc.ico'))
         self.is_dragging = False
+        self.popup_menu = None
         self.words = {}
         self.keys = []
         self.cur_pos = 0
@@ -120,12 +124,12 @@ class qapp(QtGui.QMainWindow):
         # !!!!!!self.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("triggered()"), self.toggle_always_on_top)
 
     def update_widgets(self):
-        flags = QtCore.Qt.WindowFlags()
+        #flags = QtCore.Qt.WindowFlags()
+        flags = QtCore.Qt.Tool
 
         if self.actToggleAlwaysOnTop.isChecked():
             flags |= QtCore.Qt.WindowStaysOnTopHint
         if self.actToggleDecorations.isChecked():
-
             flags |= QtCore.Qt.FramelessWindowHint
 
         self.setWindowFlags(flags)
@@ -160,16 +164,22 @@ class qapp(QtGui.QMainWindow):
             self.timer_toggle()
             self.timer_toggle()
 
+    def createPopupMenu(self):
+        if not self.popup_menu:
+            menu = QtGui.QMenu(self)
+            menu.addAction(self.actOpenData)
+            menu.addAction(self.actStartStop)
+            menu.addAction(self.actToggleAlwaysOnTop)
+            menu.addAction(self.actToggleDecorations)
+            menu.addAction(self.actSetShowTime)
+            menu.addAction(self.actSetBgColor)
+            menu.addAction(self.actSetThinkTime)
+            menu.addAction(self.exitAct)
+            self.popup_menu = menu
+        return self.popup_menu
+
     def contextMenuEvent(self, event):
-        menu = QtGui.QMenu(self)
-        menu.addAction(self.actOpenData)
-        menu.addAction(self.actStartStop)
-        menu.addAction(self.actToggleAlwaysOnTop)
-        menu.addAction(self.actToggleDecorations)
-        menu.addAction(self.actSetShowTime)
-        menu.addAction(self.actSetBgColor)
-        menu.addAction(self.actSetThinkTime)
-        menu.addAction(self.exitAct)
+        menu = self.createPopupMenu()
         menu.exec_(event.globalPos())
 
     # capture mouse drag on main window
@@ -350,6 +360,15 @@ class qapp(QtGui.QMainWindow):
         self.actOpenData.setShortcut("Ctrl+O")
         self.connect(self.actOpenData, QtCore.SIGNAL("triggered()"), self.setDictionary)
 
+    def createTrayIcon(self):
+        ik = QtCore.QString("pyvoc.ico")
+        menu = self.createPopupMenu()
+        # quitAction = menu.addAction('Quit')
+        sicon = QtGui.QIcon(ik)
+        tray = QtGui.QSystemTrayIcon(sicon)
+        self.tray_ = tray
+        tray.setContextMenu(menu)
+        tray.show()
 
     def closeEvent(self, event):
 
@@ -410,4 +429,5 @@ if __name__ == "__main__":
     myapp.init_data()
     myapp.timer_toggle()
     myapp.show()
+    myapp.createTrayIcon()
     sys.exit(app.exec_())
