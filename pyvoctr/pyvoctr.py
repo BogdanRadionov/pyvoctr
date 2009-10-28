@@ -10,11 +10,14 @@
 # TODO: Invoke 'Open file' if default dict file is not found DONE
 # TODO: Add support for loading DSL files (??)
 # TODO: Set display font/size
-# TODO: Reconsider text scaling approach
+# TODO: Improve text scaling method
 # TODO: Optional delay before second word appears DONE
 # TODO: Swap words
-# TODO: Resize font size for long phrases
+# TODO: Autoresize font size for long phrases
 # TODO: Hide from task bar, create icon in systray DONE
+# TODO: Fix think time delay on click skip
+# TODO: Add configuration for separation character
+# TODO: Create options dialog
 import sys
 import os
 
@@ -24,9 +27,9 @@ DEFAULT_SHOW_DECORATIONS = False
 DEFAULT_ALWAYS_ON_TOP = True
 DEFAULT_THINK_TIME = 2000
 
-DEFAULT_TIMER_PERIOD = 10000
+DEFAULT_SHOW_TIME = 10000
 DEFAULT_BG_COLOR = '#F1F2B3'
-DEFAULT_DICT_FILE = 'en-es-mine.txt'
+DEFAULT_DICT_FILE = 'en-es-mnemosyne.txt'
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -86,6 +89,7 @@ class qapp(QtGui.QMainWindow):
         ## single-shot timer
         if self.think_time_enabled:
             self.timer_think_time = QtCore.QTimer()
+
         #self.ctimer.start(self.show_time_value)
         self.setWindowIcon(QtGui.QIcon('pyvoc.ico'))
         self.is_dragging = False
@@ -136,26 +140,26 @@ class qapp(QtGui.QMainWindow):
         self.show()
 
     def setBgColor(self):
-        self.bg_color = QtGui.QColorDialog.getColor(QtCore.Qt.green, self)
+        self.bg_color = QtGui.QColorDialog.getColor(QtGui.QColor(self.bg_color), self)
         if self.bg_color.isValid():
             print self.bg_color, self.bg_color.name
             self.setStyleSheet("QWidget { background-color: %s }" % self.bg_color.name() )
 
     def setShowTime(self):
         val, ok = QtGui.QInputDialog.getInteger(self, "Show word for... ",
-                                              "Seconds:", self.show_time_value/1000, 0, 1000, 1)
+                                                "Seconds:", self.show_time_value/1000, 0, 1000, 1)
         if ok:
             self.show_time_value = val * 1000
             self.timer_toggle()
             self.timer_toggle()
             # if current think time bigger than show_time_value then
-            # set it to half the value of timer period
-            if self.think_time_value > self.show_time_value:
+            # set it to half the value of show time value
+            if self.think_time_enabled and self.think_time_value > self.show_time_value:
                 self.think_time_value = int(self.show_time_value / 2)
 
     def setThinkTime(self):
         val2, ok = QtGui.QInputDialog.getInteger(self, "Set think time",
-                                              "Seconds:", self.think_time_value/1000, 0, 1000, 1)
+                                                 "Seconds:", self.think_time_value/1000, 0, 1000, 1)
         if ok:
             if val2 * 1000 > self.show_time_value:
                 QtGui.QMessageBox.information(self, self.tr("Invalid value"), "Entered value is greater than show time!")
@@ -207,11 +211,11 @@ class qapp(QtGui.QMainWindow):
 
     def init_data(self):
         if os.path.exists(self.dict_file):
-            print '[init_data] Dict file:', self.dict_file
+            print '[init_data] Dict file exists:', self.dict_file
         else:
             print 'No dictionary file'
-            self.setDictionary('Default dictionary not found. Please select'+
-                           ' a dictionary file.')
+            self.setDictionaryFile('Default dictionary not found. Please select'+
+                                   ' a dictionary file.')
         if not os.path.exists(self.dict_file):
             print 'No dictionary file selected'
         self.cur_pos = 0
@@ -223,17 +227,26 @@ class qapp(QtGui.QMainWindow):
 
     def load_dictionary(self, file_name):
         print 'Loading dictionary file %s...' % file_name
+
+        # reset dictionary
+        if self.words:
+            self.words.clear()
         for line in open(file_name).readlines():
             ## skip empty lines and comments
             if not line.strip() or line.startswith('#'):
                 continue
             try:
-                k, v = line.decode('utf8').split('=')
+                k, v = line.decode('utf8').split(' = ')
                 k = k.replace('"','')
                 #print k, v
                 self.words[k.strip()] = v.strip()
             except Exception, e:
-                print e, line
+                try:
+                    k, v = line.decode('utf8').split('=')
+                    k = k.replace('"','')
+                except Exception, e2:
+                    print e2, line
+
         self.keys = self.words.keys()
         print 'Loaded %s entries from dictionary' % len(self.keys)
         #self.ui.progbar_constant.maximum = len(self.keys)
@@ -253,11 +266,11 @@ class qapp(QtGui.QMainWindow):
         self.update_widgets()
 
 
-    def setDictionary(self, msg=None):
+    def setDictionaryFile(self, msg=None):
         self.dict_file = QtGui.QFileDialog.getOpenFileName(self,
-                        msg or 'Load dictionary file',
-                        'text file',
-                        "All Files (*);;Text Files (*.txt)")
+                                                           msg or 'Load dictionary file',
+                                                           'text file',
+                                                           "All Files (*);;Text Files (*.txt)")
         if os.path.exists(self.dict_file):
             self.init_data()
         else:
@@ -287,10 +300,21 @@ class qapp(QtGui.QMainWindow):
     def timer_skip(self, event):
         print 'timer_skip...'
         if not self.is_dragging and event.button() == QtCore.Qt.LeftButton:
-            if self.timer_think_time:
+            if self.ctimer.isActive():
+                #self.ctimer.timout.emit()
+                self.ctimer.emit(QtCore.SIGNAL("timeout()"))
+            if self.timer_think_time.isActive():
+                self.timer_think_time.emit(QtCore.SIGNAL("timeout()"))
+                #self.timer_think_time.timeout.emit()
+                #self.timer_toggle()
+                #self.timer_toggle()
+                ##self.timer_think_time.stop()
+
+                ##self.ctimer.stop()
+                ##self.ctimer.start()
                 #self.timer_think_time.stop()
-                self.timer_think_time.start()
-            self.timer_update()
+                #self.timer_think_time.start()
+            #self.timer_update()
         if self.is_dragging:
             self.is_dragging = False
 
@@ -358,7 +382,7 @@ class qapp(QtGui.QMainWindow):
 
         self.actOpenData = QtGui.QAction("Open dictionary", self)
         self.actOpenData.setShortcut("Ctrl+O")
-        self.connect(self.actOpenData, QtCore.SIGNAL("triggered()"), self.setDictionary)
+        self.connect(self.actOpenData, QtCore.SIGNAL("triggered()"), self.setDictionaryFile)
 
     def createTrayIcon(self):
         ik = QtCore.QString("pyvoc.ico")
@@ -374,7 +398,7 @@ class qapp(QtGui.QMainWindow):
 
         quit_msg = "Are you sure you want to exit the program?"
         reply = QtGui.QMessageBox.question(self, 'Message',
-                        quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                                           quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
         if reply == QtGui.QMessageBox.Yes:
             self.writeSettings()
@@ -390,7 +414,7 @@ class qapp(QtGui.QMainWindow):
 
         #store config in local variables
         self.bg_color = self.settings.contains('bg_color') and self.settings.value("bg_color").toString() or DEFAULT_BG_COLOR
-        self.show_time_value = self.settings.contains('show_time_value') and self.settings.value("show_time_value").toInt()[0] or DEFAULT_TIMER_PERIOD
+        self.show_time_value = self.settings.contains('show_time_value') and self.settings.value("show_time_value").toInt()[0] or DEFAULT_SHOW_TIME
         self.dict_file = self.settings.contains('dict_file') and self.settings.value("dict_file").toString() or DEFAULT_DICT_FILE
         self.show_decorations = self.settings.contains('show_decorations') and self.settings.value("show_decorations").toBool() or DEFAULT_SHOW_DECORATIONS
         self.always_on_top = self.settings.contains('always_on_top') and self.settings.value("always_on_top").toBool() or DEFAULT_ALWAYS_ON_TOP
@@ -430,4 +454,5 @@ if __name__ == "__main__":
     myapp.timer_toggle()
     myapp.show()
     myapp.createTrayIcon()
+    myapp.update_widgets()
     sys.exit(app.exec_())

@@ -63,7 +63,8 @@ Section "Main" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File "dist\bz2.pyd"
-  File "dist\en-es-mine.txt"
+  File "en-es-mine.txt"
+  File "en-es-mnemosyne.txt"
   File "dist\library.zip"
   File "dist\mingwm10.dll"
   File "dist\MSVCR71.dll"
@@ -73,7 +74,7 @@ Section "Main" SEC01
   File "dist\QtGui.pyd"
   File "dist\QtGui4.dll"
   File "dist\pyvoctr.exe"
-  File "dist\pyvoc.ico"
+  File "pyvoc.ico"
   File "dist\sip.pyd"
   File "dist\unicodedata.pyd"
   File "dist\w9xpopen.exe"
@@ -133,7 +134,10 @@ Section Uninstall
   Delete "$INSTDIR\MSVCR71.dll"
   Delete "$INSTDIR\mingwm10.dll"
   Delete "$INSTDIR\library.zip"
-  Delete "$INSTDIR\en-es-mine.txt"
+;  Delete "$INSTDIR\en-es-mine.txt"
+;  Delete "$INSTDIR\en-es-mnemosyne.txt"
+;  
+  
   Delete "$INSTDIR\bz2.pyd"
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
