@@ -22,20 +22,20 @@ import sys
 import os
 
 from PyQt4 import QtCore, QtGui
-
+WINDOW_TITLE = "Vocabulary Trainer"
 DEFAULT_SHOW_DECORATIONS = False
 DEFAULT_ALWAYS_ON_TOP = True
 DEFAULT_THINK_TIME = 2000
 
 DEFAULT_SHOW_TIME = 10000
-DEFAULT_BG_COLOR = '#F1F2B3'
+DEFAULT_BG_COLOR = '#b2e69b'
 DEFAULT_DICT_FILE = 'en-es-mnemosyne.txt'
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(330,125)
-        MainWindow.setWindowTitle("pyvoctr")
+        MainWindow.setWindowTitle(WINDOW_TITLE)
         self.centralwidget = QtGui.QWidget(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -126,6 +126,7 @@ class qapp(QtGui.QMainWindow):
         # self.ui.lb_source.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("triggered()"), self.toggle_always_on_top)
         # self.ui.lb_target.setStyleSheet("QLabel {font-size: %spx;}" % str(side/10-3))
         # !!!!!!self.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("triggered()"), self.toggle_always_on_top)
+        self.update_widgets()
 
     def update_widgets(self):
         #flags = QtCore.Qt.WindowFlags()
@@ -133,17 +134,19 @@ class qapp(QtGui.QMainWindow):
 
         if self.actToggleAlwaysOnTop.isChecked():
             flags |= QtCore.Qt.WindowStaysOnTopHint
-        if self.actToggleDecorations.isChecked():
+
+        if not self.actToggleDecorations.isChecked():
             flags |= QtCore.Qt.FramelessWindowHint
 
         self.setWindowFlags(flags)
         self.show()
 
     def setBgColor(self):
-        self.bg_color = QtGui.QColorDialog.getColor(QtGui.QColor(self.bg_color), self)
-        if self.bg_color.isValid():
-            print self.bg_color, self.bg_color.name
-            self.setStyleSheet("QWidget { background-color: %s }" % self.bg_color.name() )
+        qtColor = QtGui.QColorDialog.getColor(QtGui.QColor(self.bg_color), self)
+        if qtColor.isValid():
+            self.bg_color = qtColor.name()
+            print self.bg_color
+            self.setStyleSheet("QWidget { background-color: %s }" % self.bg_color)
 
     def setShowTime(self):
         val, ok = QtGui.QInputDialog.getInteger(self, "Show word for... ",
@@ -209,9 +212,15 @@ class qapp(QtGui.QMainWindow):
             self.ui.lb_target.setStyleSheet("QLabel {font-size: %spx;}" % str(side/10-3))
             print side, self.ui.lb_source.styleSheet()
 
+    def update_file_label(self):
+        if self.dict_file:
+            fname = os.path.basename(str(self.dict_file)) or '<none>'
+            self.actOpenData.setText('Open dictionary... (%s)' % fname)
+            self.setWindowTitle(WINDOW_TITLE + " (%s)" % fname)
+
     def init_data(self):
         if os.path.exists(self.dict_file):
-            print '[init_data] Dict file exists:', self.dict_file
+            print '[init_data] Found dictionary:', self.dict_file
         else:
             print 'No dictionary file'
             self.setDictionaryFile('Default dictionary not found. Please select'+
@@ -223,6 +232,7 @@ class qapp(QtGui.QMainWindow):
         # if self.ctimer.isActive():
             # self.ctimer.stop()
         self.load_dictionary(self.dict_file)
+        self.update_file_label()
         self.timer_update()
 
     def load_dictionary(self, file_name):
@@ -273,6 +283,7 @@ class qapp(QtGui.QMainWindow):
                                                            "All Files (*);;Text Files (*.txt)")
         if os.path.exists(self.dict_file):
             self.init_data()
+            self.update_file_label()
         else:
             print 'No such file:', self.dict_file
 
@@ -332,7 +343,7 @@ class qapp(QtGui.QMainWindow):
             self.actStartStop.setChecked(False)
 
     def createMenus(self):
-        self.fileMenu = self.menuBar().addMenu(".")
+        self.fileMenu = self.menuBar().addMenu(u"\u263c")
         self.fileMenu.addAction(self.actOpenData)
         self.fileMenu.addAction(self.actToggleAlwaysOnTop)
         self.fileMenu.addAction(self.actToggleDecorations)
@@ -355,7 +366,7 @@ class qapp(QtGui.QMainWindow):
 #        self.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("toggled(checked)"), self.toggle_always_on_top)
         self.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("triggered()"), self.toggle_always_on_top)
 
-        self.actToggleDecorations = QtGui.QAction("Hide window &title", self)
+        self.actToggleDecorations = QtGui.QAction("Show window &title", self)
         self.actToggleDecorations.setCheckable(True)
         self.actToggleDecorations.setChecked(self.show_decorations)
         self.actToggleDecorations.setShortcut("Ctrl+B")
@@ -378,7 +389,6 @@ class qapp(QtGui.QMainWindow):
 
         self.actSetThinkTime = QtGui.QAction("Set think time", self)
         self.connect(self.actSetThinkTime, QtCore.SIGNAL("triggered()"), self.setThinkTime)
-
 
         self.actOpenData = QtGui.QAction("Open dictionary", self)
         self.actOpenData.setShortcut("Ctrl+O")
@@ -416,6 +426,8 @@ class qapp(QtGui.QMainWindow):
         self.bg_color = self.settings.contains('bg_color') and self.settings.value("bg_color").toString() or DEFAULT_BG_COLOR
         self.show_time_value = self.settings.contains('show_time_value') and self.settings.value("show_time_value").toInt()[0] or DEFAULT_SHOW_TIME
         self.dict_file = self.settings.contains('dict_file') and self.settings.value("dict_file").toString() or DEFAULT_DICT_FILE
+
+        print "DBG::SHOW_DECORATIONS:::", self.settings.contains('show_decorations'), self.settings.value("show_decorations").toBool()
         self.show_decorations = self.settings.contains('show_decorations') and self.settings.value("show_decorations").toBool() or DEFAULT_SHOW_DECORATIONS
         self.always_on_top = self.settings.contains('always_on_top') and self.settings.value("always_on_top").toBool() or DEFAULT_ALWAYS_ON_TOP
         self.think_time_enabled = self.settings.contains('think_time_enabled') and self.settings.value("think_time_enabled").toBool() or DEFAULT_THINK_TIME
@@ -454,5 +466,5 @@ if __name__ == "__main__":
     myapp.timer_toggle()
     myapp.show()
     myapp.createTrayIcon()
-    myapp.update_widgets()
+    #myapp.update_widgets()
     sys.exit(app.exec_())
