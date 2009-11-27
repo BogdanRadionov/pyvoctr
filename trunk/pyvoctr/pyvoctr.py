@@ -8,7 +8,7 @@
 # TODO: Option to 'Pin on top' DONE
 # TODO: Advance to next word on click DONE
 # TODO: Invoke 'Open file' if default dict file is not found DONE
-# TODO: Add support for loading DSL files (??)
+# TODO: Add support for DSL files (??)
 # TODO: Set display font/size
 # TODO: Improve text scaling method
 # TODO: Optional delay before second word appears DONE
@@ -18,6 +18,7 @@
 # TODO: Fix think time delay on click skip
 # TODO: Add configuration for separation character
 # TODO: Create options dialog
+#
 import sys
 import os
 
@@ -30,6 +31,15 @@ DEFAULT_THINK_TIME = 2000
 DEFAULT_SHOW_TIME = 10000
 DEFAULT_BG_COLOR = '#b2e69b'
 DEFAULT_DICT_FILE = 'en-es-mnemosyne.txt'
+RELEASE = '8-8008'
+ABOUT = '''Python Vocabulary Trainer %s
+
+Author:\tGhinion Surdu
+Email:\tdogpizza@gmail.com
+Web:\thttp://pyvoctr.googlecode.com
+
+Copywhite 2009, xhuman
+''' % RELEASE
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -179,8 +189,9 @@ class qapp(QtGui.QMainWindow):
             menu.addAction(self.actToggleAlwaysOnTop)
             menu.addAction(self.actToggleDecorations)
             menu.addAction(self.actSetShowTime)
-            menu.addAction(self.actSetBgColor)
             menu.addAction(self.actSetThinkTime)
+            menu.addAction(self.actSetBgColor)
+            menu.addAction(self.actAbout)
             menu.addAction(self.exitAct)
             self.popup_menu = menu
         return self.popup_menu
@@ -279,8 +290,8 @@ class qapp(QtGui.QMainWindow):
     def setDictionaryFile(self, msg=None):
         self.dict_file = QtGui.QFileDialog.getOpenFileName(self,
                                                            msg or 'Load dictionary file',
-                                                           'text file',
-                                                           "All Files (*);;Text Files (*.txt)")
+                                                           '',
+                                                           "Vocabulary files (*.txt);;All Files (*.*);")
         if os.path.exists(self.dict_file):
             self.init_data()
             self.update_file_label()
@@ -352,6 +363,7 @@ class qapp(QtGui.QMainWindow):
         #self.fileMenu.addAction(self.actUnhideWindowTitle)
         self.fileMenu.addAction(self.actStartStop)
         self.fileMenu.addAction(self.actSetBgColor)
+        self.fileMenu.addAction(self.actAbout)
         self.fileMenu.addAction(self.exitAct)
 
     def createActions(self):
@@ -394,6 +406,13 @@ class qapp(QtGui.QMainWindow):
         self.actOpenData.setShortcut("Ctrl+O")
         self.connect(self.actOpenData, QtCore.SIGNAL("triggered()"), self.setDictionaryFile)
 
+        self.actAbout = QtGui.QAction("About", self)
+        self.connect(self.actAbout, QtCore.SIGNAL("triggered()"), self.showAboutDialog)
+
+    def showAboutDialog(self):
+        ret = QtGui.QMessageBox.information(self, 'About Python Vocabulary Trainer', ABOUT)
+
+
     def createTrayIcon(self):
         ik = QtCore.QString("pyvoc.ico")
         menu = self.createPopupMenu()
@@ -413,6 +432,7 @@ class qapp(QtGui.QMainWindow):
         if reply == QtGui.QMessageBox.Yes:
             self.writeSettings()
             event.accept()
+            self.tray_.deleteLater()
             QtGui.QApplication.instance().quit()
             #self.destroy()  # causes QObject::killTimers: timers cannot be stopped from another thread
         else:
