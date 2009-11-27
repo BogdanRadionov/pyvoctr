@@ -1,3 +1,5 @@
+aguantar = to endure
+un ricachón = a very rich man
 más vale tarde que nunca = better late than never
 nunca más = never again
 nunca jamás = never again
@@ -288,3 +290,21 @@ la pluma = feather
 levantar = wake up
 obrar = to act, to operate, to work
 la obra = work, effort
+Roma fue saqueada = Rome was plundered
+los godos = the Goths
+moro = Northern African arab
+se quedó tan deslumbrado = was so impressed
+lugarteniente = deputy
+arrancar = rip off
+una pata = paw <font size="-1">(pie de mueble)</font>
+un espejo = mirror
+un aleación = alloy
+la redecilla = net
+la cuna de niño = cradle
+extraviar = mislead
+asustar = to frighten
+la hormiga = the ant
+el zorro = fox, shrewd person
+postor = bidder, buyer 
+herido/herida = wounded, injured
+

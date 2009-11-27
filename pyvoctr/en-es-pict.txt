@@ -1,0 +1,85 @@
+﻿
+un reloj = <img height="150" src='img/watch.jpg'><br>watch
+una tortuga = <img height="150" src='img/turtle.jpg'><br>turtle
+un sapo = <img height="150" src='img/toad.jpg'><br>toad
+un perro = <img height="150" src='img/dog.jpg'><br>dog
+una taza = <img height="150" src='img/cup.jpg'><br>cup
+las manzanas = <img height="150" src='img/apple.jpg'><br>apples
+el niño, el/la bebé = <img height="150" src='img/baby.jpg'><br>baby
+una bolsa = <img height="150" src='img/bag.jpg'><br>bag
+una novia = <img height="150" src='img/bride.jpg'><br>bride
+una bombilla = <img height="150" src='img/bulb.jpg'><br>bulb
+un toro = <img height="150" src='img/bull.jpg'><br>bull
+el repollo = <img height="150" src='img/cabbage.jpg'><br>cabbage
+la zanahoria = <img height="150" src='img/carrots.jpg'><br>carrot
+una silla = <img height="150" src='img/chair.jpg'><br>chair
+las cerezas = <img height="150" src='img/cherries.jpg'><br>cherries
+la gallina (hen)<br> el pollo (chick) = <img height="150" src='img/chicken.jpg'><br>chicken
+una moneda = <img height="150" src='img/coin.jpg'><br>coin
+el corcho = <img height="150" src='img/cork.jpg'><br>cork
+la vaca = <img height="150" src='img/cow.jpg'><br>cow
+bailar = <img height="150" src='img/dancing.jpg'><br>to dance
+el ciervo = <img height="150" src='img/deer.jpg'><br>deer 
+una muñeca = <img height="150" src='img/doll.jpg'><br>doll  
+la puerta = <img height="150" src='img/door.jpg'><br>door  
+beber, tomar = <img height="150" src='img/drink.jpg'><br>to drink 
+el pato, la pata = <img height="150" src='img/duck.jpg'><br>duck 
+el cubo = <img height="150" src='img/dust_bin.jpg'><br>dust bin  
+la cara  = <img height="150" src='img/face.jpg'><br>face
+la familia = <img height="150" src='img/family.jpg'><br>family
+el zorro = <img height="150" src='img/fox.jpg'><br>fox
+la rana = <img height="150" src='img/frog.jpg'><br>frog
+ajo = <img height="150" src='img/garlic.jpg'><br>garlic
+las uvas = <img height="150" src='img/grapes.jpg'><br>grapes
+un caballo = <img height="150" src='img/horse.jpg'><br>horse
+la casa = <img height="150" src='img/house.jpg'><br>house
+la pava = <img height="150" src='img/kettle.jpg'><br>kettle
+el lagarto = <img height="150" src='img/lizard.jpg'><br>lizard
+el camión = <img height="150" src='img/lorry.jpg'><br>lorry
+el ratón = <img height="150" src='img/mouse.jpg'><br>mouse
+la leche = <img height="150" src='img/milk.jpg'><br>milk
+el avestruz = <img height="150" src='img/ostrich.jpg'><br>ostrich
+el loro, el papagayo = <img height="150" src='img/parrot.jpg'><br>parrot
+un bolígrafo <br>(boli <i>Esp</i>) = <img height="150" src='img/pen.jpg'><br>pen
+un lápiz = <img height="150" src='img/pencil.jpg'><br>pencil
+el cerdo <br><font size=-3>(chancho <i>AmL</i>)</font> = <img height="150" src='img/pig.jpg'><br>pig
+las pastillas, las píldoras = <img height="150" src='img/pills.jpg'><br>pills
+las papas <br><font size=-3><i>Esp.</i> las patatas</font> = <img height="150" src='img/potato.jpg'><br>potato
+la calabaza = <img height="150" src='img/pumpkin.jpg'><br>pumpkin
+un cachorro = <img height="150" src='img/puppy.jpg'><br>puppy
+el conejo = <img height="150" src='img/rabbit.jpg'><br>rabbit
+una máquina de afeitar = <img height="150" src='img/razor.jpg'><br>razor
+la piedra = <img height="150" src='img/rock.jpg'><br>rock
+la cuerda = <img height="150" src='img/rope.jpg'><br>rope
+el gallo = <img height="150" src='img/rooster.jpg'><br>rooster
+una ensalada = <img height="150" src='img/salad.jpg'><br>salad
+la sal = <img height="150" src='img/salt.jpg'><br>salt
+el tornillo = <img height="150" src='img/screw.jpg'><br>screw
+el destornillador = <img height="150" src='img/screwdriver.jpg'><br>screwdriver
+la  oveja = <img height="150" src='img/sheep.jpg'><br>sheep
+la camisa = <img height="150" src='img/shirt.jpg'><br>shirt
+los zapatos = <img height="150" src='img/shoes.jpg'><br>shoes
+sentarse, estar sentado = <img height="150" src='img/sit.jpg'><br>sit
+el caracol = <img height="150" src='img/snail.jpg'><br>snail
+la culebra, la serpiente  = <img height="150" src='img/snake.jpg'><br>snake
+el jabón = <img height="150" src='img/soap.jpg'><br>soap
+un calcetín = <img height="150" src='img/socks.jpg'><br>sock
+una araña = <img height="150" src='img/spider.jpg'><br>spider
+la esponja = <img height="150" src='img/sponge.jpg'><br>sponge
+el muelle = <img height="150" src='img/spring.jpg'><br>spring
+un suéter, un pulóver = <img height="150" src='img/sweater.jpg'><br>sweater
+una tienda (de campaña)<br>una carpa = <img height="150" src='img/tent.jpg'><br>tent
+una toalla = <img height="150" src='img/towel.jpg'><br>towel
+un florero; un jarrón = <img height="150" src='img/vase.jpg'><br>vase
+el armario = <img height="150" src='img/wardrobe.jpg'><br>wardrobe
+una lavadora = <img height="150" src='img/washing_machine.jpg'><br>washing machine
+<font size=-3>un tigre</font> salvaje = <img height="150" src='img/wild.jpg'><br>wild (tiger)
+el lobo = <img height="150" src='img/wolf.jpg'><br>wolf
+la cuchara = <img height="150" src='img/wood_spoon.jpg'><br>spoon
+la flecha = <img height="33" src='img/arrow.jpg'><br>arrow
+el pájaro = <img height="150" src='img/bird.jpg'><br>bird
+el grillo = <img height="150" src='img/cricket.jpg'><br>cricket
+el tambor = <img height="150" src='img/drum.jpg'><br>drum
+
+
+
