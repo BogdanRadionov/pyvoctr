@@ -60,24 +60,38 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 Section "Main" SEC01
+
+  
+  SetOutPath "$INSTDIR"
+  SetOverwrite try
+  File /r "img"
+  
+  
+  SetOutPath "$INSTDIR\plugins"
+  SetOverwrite try
+  File /r "d:\BIN\Python26\Lib\site-packages\PyQt4\plugins\imageformats"
+  
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File "dist\bz2.pyd"
-  File "en-es-mine.txt"
+  File "en-es-mine.txt"  
+  File "en-es-pict.txt"
   File "en-es-mnemosyne.txt"
   File "dist\library.zip"
-  File "dist\mingwm10.dll"
-  File "dist\MSVCR71.dll"
-  File "dist\python25.dll"
-  File "dist\QtCore.pyd"
+  File "msvcp90.dll"
+  File "dist\python26.dll"
+  File "dist\PyQt4.QtCore.pyd"
   File "dist\QtCore4.dll"
-  File "dist\QtGui.pyd"
+  File "dist\PyQt4.QtGui.pyd"
   File "dist\QtGui4.dll"
   File "dist\pyvoctr.exe"
   File "pyvoc.ico"
   File "dist\sip.pyd"
   File "dist\unicodedata.pyd"
   File "dist\w9xpopen.exe"
+  File "qt.conf"
+
+  
 
 ; Shortcuts
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
@@ -113,13 +127,14 @@ Function un.onUninstSuccess
 FunctionEnd
 
 Function un.onInit
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Remove $(^Name) and all of its components?" IDYES +2
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Remove $(^Name) and all of its components?\nAll new files in the program folder will also be deleted!" IDYES +2
   Abort
 FunctionEnd
 
 Section Uninstall
   !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
-  Delete "$INSTDIR\${PRODUCT_NAME}.url"
+  RMDir /r $INSTDIR
+/*  Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\w9xpopen.exe"
   Delete "$INSTDIR\unicodedata.pyd"
@@ -133,7 +148,7 @@ Section Uninstall
   Delete "$INSTDIR\python25.dll"
   Delete "$INSTDIR\MSVCR71.dll"
   Delete "$INSTDIR\mingwm10.dll"
-  Delete "$INSTDIR\library.zip"
+  Delete "$INSTDIR\library.zip"*/
 ;  Delete "$INSTDIR\en-es-mine.txt"
 ;  Delete "$INSTDIR\en-es-mnemosyne.txt"
 ;  
