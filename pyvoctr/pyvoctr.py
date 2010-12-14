@@ -29,8 +29,8 @@ DEFAULT_ALWAYS_ON_TOP = True
 DEFAULT_THINK_TIME = 2000
 
 DEFAULT_SHOW_TIME = 10000
-DEFAULT_BG_COLOR = '#b2e69b'
-DEFAULT_DICT_FILE = 'en-es-mnemosyne.txt'
+DEFAULT_BG_COLOR = '#ffffff'
+DEFAULT_DICT_FILE = 'en-es-pict.txt'
 RELEASE = '8-8008'
 ABOUT = '''Python Vocabulary Trainer %s
 
@@ -190,6 +190,7 @@ class qapp(QtGui.QMainWindow):
             menu.addAction(self.actToggleDecorations)
             menu.addAction(self.actSetShowTime)
             menu.addAction(self.actSetThinkTime)
+            menu.addAction(self.actSwapLang)
             menu.addAction(self.actSetBgColor)
             menu.addAction(self.actAbout)
             menu.addAction(self.exitAct)
@@ -216,12 +217,12 @@ class qapp(QtGui.QMainWindow):
 
     def resizeEvent(self, event):
         side = min(self.width(), self.height())
+        ############################################print self.
         if side > 160:
             #self.ui.lb_source.setMinimumSize(Qt.QSize(side,side))
             #self.ui.lb_source.setStyleSheet("QLabel {font-size: %spx; border: 2px solid gray; border-radius: 8px;}" % str(side/10-3))
-            self.ui.lb_source.setStyleSheet("QLabel {font-size: %spx;}" % str(side/10-3))
-            self.ui.lb_target.setStyleSheet("QLabel {font-size: %spx;}" % str(side/10-3))
-            print side, self.ui.lb_source.styleSheet()
+            self.ui.lb_source.setStyleSheet("QLabel {font-size: %spx;border-radius: 8px;}" % str(side/14-3))
+            self.ui.lb_target.setStyleSheet("QLabel {font-size: %spx;}" % str(side/14-3))
 
     def update_file_label(self):
         if self.dict_file:
@@ -234,7 +235,7 @@ class qapp(QtGui.QMainWindow):
             print '[init_data] Found dictionary:', self.dict_file
         else:
             print 'No dictionary file'
-            self.setDictionaryFile('Default dictionary not found. Please select'+
+            self.setDictionaryFile('Dictionary not found. Please select'+
                                    ' a dictionary file.')
         if not os.path.exists(self.dict_file):
             print 'No dictionary file selected'
@@ -286,6 +287,8 @@ class qapp(QtGui.QMainWindow):
         print 'show decorations', self.actToggleDecorations.isChecked()
         self.update_widgets()
 
+    def swapLanguages(self):
+        self.swap_languages = not self.swap_languages
 
     def setDictionaryFile(self, msg=None):
         self.dict_file = QtGui.QFileDialog.getOpenFileName(self,
@@ -307,10 +310,14 @@ class qapp(QtGui.QMainWindow):
             self.cur_pos = 0
             #self.ui.progbar_constant.reset()
         #self.ui.progbar_constant.setValue(self.cur_pos)
-        word2 = self.keys[self.cur_pos]
-        word1 = self.words[self.keys[self.cur_pos]]
-        self.ui.lb_source.setText('<h2><font color="green">' + word1 + '</h2>')
-        word2_formatted = '<h2><font color="darkblue">' + word2 + '</font></h2>'
+        if self.actSwapLang.isChecked():
+            word1 = self.keys[self.cur_pos]
+            word2 = self.words[self.keys[self.cur_pos]]
+        else:
+            word2 = self.keys[self.cur_pos]
+            word1 = self.words[self.keys[self.cur_pos]]
+        self.ui.lb_source.setText('<h3><font color="green">' + word1 + '</h3>')
+        word2_formatted = '<h3><font color="darkblue">' + word2 + '</font></h3>'
 
         if not self.think_time_enabled or self.think_time_value == 0:
             self.ui.lb_target.setText(word2_formatted)
@@ -361,6 +368,7 @@ class qapp(QtGui.QMainWindow):
         self.fileMenu.addAction(self.actSetShowTime)
         #self.fileMenu.addAction(self.actHideWindowTitle)
         #self.fileMenu.addAction(self.actUnhideWindowTitle)
+        self.fileMenu.addAction(self.actSwapLang)
         self.fileMenu.addAction(self.actStartStop)
         self.fileMenu.addAction(self.actSetBgColor)
         self.fileMenu.addAction(self.actAbout)
@@ -378,7 +386,7 @@ class qapp(QtGui.QMainWindow):
 #        self.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("toggled(checked)"), self.toggle_always_on_top)
         self.connect(self.actToggleAlwaysOnTop, QtCore.SIGNAL("triggered()"), self.toggle_always_on_top)
 
-        self.actToggleDecorations = QtGui.QAction("Show window &title", self)
+        self.actToggleDecorations = QtGui.QAction("Show window &frame", self)
         self.actToggleDecorations.setCheckable(True)
         self.actToggleDecorations.setChecked(self.show_decorations)
         self.actToggleDecorations.setShortcut("Ctrl+B")
@@ -406,6 +414,12 @@ class qapp(QtGui.QMainWindow):
         self.actOpenData.setShortcut("Ctrl+O")
         self.connect(self.actOpenData, QtCore.SIGNAL("triggered()"), self.setDictionaryFile)
 
+        self.actSwapLang = QtGui.QAction("Swap languages", self)
+        self.actSwapLang.setShortcut("Ctrl+W")
+        self.actSwapLang.setCheckable(True)
+        self.actSwapLang.setChecked(self.swap_languages)
+        self.connect(self.actSwapLang, QtCore.SIGNAL("triggered()"), self.swapLanguages)
+
         self.actAbout = QtGui.QAction("About", self)
         self.connect(self.actAbout, QtCore.SIGNAL("triggered()"), self.showAboutDialog)
 
@@ -425,7 +439,7 @@ class qapp(QtGui.QMainWindow):
 
     def closeEvent(self, event):
 
-        quit_msg = "Are you sure you want to exit the program?"
+        quit_msg = "Exit the program?"
         reply = QtGui.QMessageBox.question(self, 'Message',
                                            quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
@@ -446,13 +460,11 @@ class qapp(QtGui.QMainWindow):
         self.bg_color = self.settings.contains('bg_color') and self.settings.value("bg_color").toString() or DEFAULT_BG_COLOR
         self.show_time_value = self.settings.contains('show_time_value') and self.settings.value("show_time_value").toInt()[0] or DEFAULT_SHOW_TIME
         self.dict_file = self.settings.contains('dict_file') and self.settings.value("dict_file").toString() or DEFAULT_DICT_FILE
-
-        print "DBG::SHOW_DECORATIONS:::", self.settings.contains('show_decorations'), self.settings.value("show_decorations").toBool()
         self.show_decorations = self.settings.contains('show_decorations') and self.settings.value("show_decorations").toBool() or DEFAULT_SHOW_DECORATIONS
         self.always_on_top = self.settings.contains('always_on_top') and self.settings.value("always_on_top").toBool() or DEFAULT_ALWAYS_ON_TOP
         self.think_time_enabled = self.settings.contains('think_time_enabled') and self.settings.value("think_time_enabled").toBool() or DEFAULT_THINK_TIME
         self.think_time_value = self.settings.contains('think_time_value') and self.settings.value("think_time_value").toInt()[0] or DEFAULT_THINK_TIME
-
+        self.swap_languages = self.settings.contains('swap_languages') and self.settings.value("swap_languages").toBool() or False
         # restore positioning
         window_flags_ = self.settings.value("window_flags").toInt()[0]
         print 'window_flags_=', window_flags_, type(window_flags_)
@@ -477,6 +489,7 @@ class qapp(QtGui.QMainWindow):
         settings.setValue("dict_file", QtCore.QVariant(self.dict_file))
         settings.setValue("window_flags", QtCore.QVariant(int(self.windowFlags())))
         settings.setValue("think_time_value", QtCore.QVariant(self.think_time_value))
+        settings.setValue("swap_languages", QtCore.QVariant(self.swap_languages))
         settings.sync()
 
 if __name__ == "__main__":
